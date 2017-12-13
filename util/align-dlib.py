@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 #
 # Copyright 2015-2016 Carnegie Mellon University
 #
@@ -24,6 +24,7 @@ import shutil
 import openface
 import openface.helper
 from openface.data import iterImgs
+
 
 fileDir = os.path.dirname(os.path.realpath(__file__))
 modelDir = os.path.join(fileDir, '..', 'models')
@@ -121,12 +122,14 @@ def alignMain(args):
 
             if args.fallbackLfw and outRgb is None:
                 nFallbacks += 1
-                deepFunneled = "{}/{}.jpg".format(os.path.join(args.fallbackLfw,
-                                                               imgObject.cls),
-                                                  imgObject.name)
-                shutil.copy(deepFunneled, "{}/{}.jpg".format(os.path.join(args.outputDir,
-                                                                          imgObject.cls),
-                                                             imgObject.name))
+                deepFunneled = "{}/{}.jpg".format(
+                    os.path.join(args.fallbackLfw, imgObject.cls),
+                    imgObject.name
+                )
+                shutil.copy(deepFunneled, "{}/{}.jpg".format(
+                    os.path.join(args.outputDir, imgObject.cls),
+                    imgObject.name)
+                )
 
             if outRgb is not None:
                 if args.verbose:
@@ -137,33 +140,56 @@ def alignMain(args):
     if args.fallbackLfw:
         print('nFallbacks:', nFallbacks)
 
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
     parser.add_argument('inputDir', type=str, help="Input image directory.")
-    parser.add_argument('--dlibFacePredictor', type=str, help="Path to dlib's face predictor.",
-                        default=os.path.join(dlibModelDir, "shape_predictor_68_face_landmarks.dat"))
+    parser.add_argument(
+        '--dlibFacePredictor', type=str,
+        help="Path to dlib's face predictor.",
+        default=os.path.join(
+            dlibModelDir, "shape_predictor_68_face_landmarks.dat"
+        )
+    )
 
     subparsers = parser.add_subparsers(dest='mode', help="Mode")
     computeMeanParser = subparsers.add_parser(
-        'computeMean', help='Compute the image mean of a directory of images.')
-    computeMeanParser.add_argument('--numImages', type=int, help="The number of images. '0' for all images.",
-                                   default=0)  # <= 0 ===> all imgs
+        'computeMean', help='Compute the image mean of a directory of images.'
+    )
+    computeMeanParser.add_argument(
+        '--numImages', type=int,
+        help="The number of images. '0' for all images.", default=0
+    )  # default <= 0 ===> all imgs
+
     alignmentParser = subparsers.add_parser(
-        'align', help='Align a directory of images.')
-    alignmentParser.add_argument('landmarks', type=str,
-                                 choices=['outerEyesAndNose',
-                                          'innerEyesAndBottomLip',
-                                          'eyes_1'],
-                                 help='The landmarks to align to.')
+        'align', help='Align a directory of images.'
+    )
     alignmentParser.add_argument(
-        'outputDir', type=str, help="Output directory of aligned images.")
-    alignmentParser.add_argument('--size', type=int, help="Default image size.",
-                                 default=96)
-    alignmentParser.add_argument('--fallbackLfw', type=str,
-                                 help="If alignment doesn't work, fallback to copying the deep funneled version from this directory..")
+        'landmarks', type=str,
+        choices=[
+            'outerEyesAndNose',
+            'innerEyesAndBottomLip',
+            'eyes_1'
+        ],
+        help='The landmarks to align to.'
+    )
     alignmentParser.add_argument(
-        '--skipMulti', action='store_true', help="Skip images with more than one face.")
+        'outputDir', type=str,
+        help="Output directory of aligned images."
+    )
+    alignmentParser.add_argument(
+        '--size', type=int,
+        help="Default image size.", default=96
+    )
+    alignmentParser.add_argument(
+        '--fallbackLfw', type=str,
+        help="If alignment doesn't work, fallback to copying the deep funneled version from this directory.."  # noqa
+    )
+    alignmentParser.add_argument(
+        '--skipMulti', action='store_true',
+        help="Skip images with more than one face."
+    )
     alignmentParser.add_argument('--verbose', action='store_true')
 
     args = parser.parse_args()
